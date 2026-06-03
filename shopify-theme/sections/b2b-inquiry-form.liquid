@@ -1,0 +1,332 @@
+{%- liquid
+  assign form_id = 'b2b-inquiry-' | append: section.id
+-%}
+
+<div class="b2b-inquiry-section page-width">
+  <div class="b2b-inquiry-header">
+    <h1 class="b2b-inquiry-header__title">B2B Product Inquiry</h1>
+    <p class="b2b-inquiry-header__subtitle">Fill in the form below and our team will get back to you within 1–2 business days.</p>
+  </div>
+
+  {%- form 'contact', id: form_id, class: 'b2b-inquiry-form' -%}
+
+    {%- if form.posted_successfully? -%}
+      <div class="b2b-inquiry-success" role="status">
+        <span class="b2b-inquiry-success__icon" aria-hidden="true">&#10003;</span>
+        <div>
+          <p class="b2b-inquiry-success__title">Inquiry sent successfully!</p>
+          <p class="b2b-inquiry-success__body">We've received your inquiry and will respond within 1–2 business days.</p>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if form.errors -%}
+      <div class="b2b-inquiry-error" role="alert">
+        <p>{{ form.errors | default_errors }}</p>
+      </div>
+    {%- endif -%}
+
+    <div class="b2b-inquiry-form__grid">
+
+      <div class="b2b-inquiry-form__field b2b-inquiry-form__field--full">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-product">
+          Product of Interest
+        </label>
+        <input
+          id="{{ form_id }}-product"
+          class="b2b-inquiry-form__input"
+          type="text"
+          name="contact[Product of Interest]"
+          placeholder="e.g. Nabota 100U"
+          {% if customer %}value="{{ customer.name }}"{% endif %}
+          data-product-field
+        >
+        <p class="b2b-inquiry-form__hint">Auto-filled when coming from a product page.</p>
+      </div>
+
+      <div class="b2b-inquiry-form__field">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-name">
+          Contact Name <span class="b2b-inquiry-form__required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="{{ form_id }}-name"
+          class="b2b-inquiry-form__input"
+          type="text"
+          name="contact[name]"
+          required
+          autocomplete="name"
+          {% if customer %}value="{{ customer.name }}"{% endif %}
+        >
+      </div>
+
+      <div class="b2b-inquiry-form__field">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-company">
+          Clinic / Company Name <span class="b2b-inquiry-form__required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="{{ form_id }}-company"
+          class="b2b-inquiry-form__input"
+          type="text"
+          name="contact[Company]"
+          required
+          autocomplete="organization"
+        >
+      </div>
+
+      <div class="b2b-inquiry-form__field">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-email">
+          Email Address <span class="b2b-inquiry-form__required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="{{ form_id }}-email"
+          class="b2b-inquiry-form__input"
+          type="email"
+          name="contact[email]"
+          required
+          autocomplete="email"
+          {% if customer %}value="{{ customer.email }}"{% endif %}
+        >
+      </div>
+
+      <div class="b2b-inquiry-form__field">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-phone">
+          Phone Number
+        </label>
+        <input
+          id="{{ form_id }}-phone"
+          class="b2b-inquiry-form__input"
+          type="tel"
+          name="contact[Phone]"
+          autocomplete="tel"
+        >
+      </div>
+
+      <div class="b2b-inquiry-form__field">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-quantity">
+          Estimated Quantity / Order Size
+        </label>
+        <input
+          id="{{ form_id }}-quantity"
+          class="b2b-inquiry-form__input"
+          type="text"
+          name="contact[Estimated Quantity]"
+          placeholder="e.g. 10 units/month"
+        >
+      </div>
+
+      <div class="b2b-inquiry-form__field b2b-inquiry-form__field--full">
+        <label class="b2b-inquiry-form__label" for="{{ form_id }}-message">
+          Message
+        </label>
+        <textarea
+          id="{{ form_id }}-message"
+          class="b2b-inquiry-form__input b2b-inquiry-form__textarea"
+          name="contact[body]"
+          rows="5"
+          placeholder="Tell us about your practice, specific products you need, or any questions you have."
+        ></textarea>
+      </div>
+
+    </div>
+
+    <div class="b2b-inquiry-form__actions">
+      <button type="submit" class="button b2b-inquiry-form__submit">
+        Send Inquiry
+      </button>
+      <p class="b2b-inquiry-form__privacy">
+        Your information is kept private and used only to process your inquiry.
+      </p>
+    </div>
+
+  {%- endform -%}
+</div>
+
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var product = params.get('product');
+    if (product) {
+      var field = document.querySelector('[data-product-field]');
+      if (field) field.value = decodeURIComponent(product);
+    }
+  })();
+</script>
+
+{% stylesheet %}
+  .b2b-inquiry-section {
+    padding-block: 64px 80px;
+    max-width: 780px;
+    margin-inline: auto;
+  }
+
+  .b2b-inquiry-header {
+    margin-bottom: 40px;
+  }
+
+  .b2b-inquiry-header__title {
+    font-family: var(--font-primary--family);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    color: #1a4a38;
+    margin-bottom: 10px;
+  }
+
+  .b2b-inquiry-header__subtitle {
+    font-size: 1rem;
+    color: var(--color-foreground);
+    opacity: 0.7;
+    line-height: 1.6;
+  }
+
+  .b2b-inquiry-form__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 749px) {
+    .b2b-inquiry-form__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .b2b-inquiry-form__field--full {
+    grid-column: 1 / -1;
+  }
+
+  .b2b-inquiry-form__label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+    margin-bottom: 6px;
+  }
+
+  .b2b-inquiry-form__required {
+    color: #c49a5e;
+  }
+
+  .b2b-inquiry-form__input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid rgba(26, 74, 56, 0.3);
+    border-radius: 4px;
+    font-family: var(--font-body--family);
+    font-size: 0.9375rem;
+    color: var(--color-foreground);
+    background-color: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+  }
+
+  .b2b-inquiry-form__input:focus {
+    outline: none;
+    border-color: #1a4a38;
+    box-shadow: 0 0 0 3px rgba(26, 74, 56, 0.12);
+  }
+
+  .b2b-inquiry-form__textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .b2b-inquiry-form__hint {
+    font-size: 0.75rem;
+    color: var(--color-foreground);
+    opacity: 0.55;
+    margin-top: 4px;
+  }
+
+  .b2b-inquiry-form__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .b2b-inquiry-form__submit {
+    background-color: #c49a5e;
+    color: #fff;
+    border: none;
+    padding: 14px 40px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-radius: var(--button-border-radius, 4px);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .b2b-inquiry-form__submit:hover {
+    background-color: #a87d45;
+  }
+
+  .b2b-inquiry-form__privacy {
+    font-size: 0.8125rem;
+    color: var(--color-foreground);
+    opacity: 0.55;
+    line-height: 1.5;
+  }
+
+  .b2b-inquiry-success {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #e8f2ec;
+    border: 1px solid #1a4a38;
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+
+  .b2b-inquiry-success__icon {
+    font-size: 1.25rem;
+    color: #1a4a38;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .b2b-inquiry-success__title {
+    font-weight: 600;
+    color: #1a4a38;
+    margin-bottom: 4px;
+  }
+
+  .b2b-inquiry-success__body {
+    font-size: 0.9375rem;
+    color: #1a4a38;
+    opacity: 0.8;
+  }
+
+  .b2b-inquiry-error {
+    background: #fff2f2;
+    border: 1px solid #cc4444;
+    border-radius: 6px;
+    padding: 14px 18px;
+    color: #cc4444;
+    font-size: 0.9375rem;
+    margin-bottom: 28px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "B2B Inquiry Form",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "presets": [
+    {
+      "name": "B2B Inquiry Form"
+    }
+  ]
+}
+{% endschema %}

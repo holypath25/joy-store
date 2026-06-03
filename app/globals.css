@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --color-brand-50: #fdf8f6;
+  --color-brand-100: #f9ede8;
+  --color-brand-200: #f1d5c8;
+  --color-brand-300: #e4b5a0;
+  --color-brand-400: #d48f6e;
+  --color-brand-500: #c47048;
+  --color-brand-600: #a85a38;
+  --color-brand-700: #8a4530;
+  --color-brand-800: #6e3526;
+  --color-brand-900: #5a2d20;
+
+  --color-surface: #ffffff;
+  --color-surface-soft: #f8f8f7;
+  --color-surface-muted: #f2f1ef;
+
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  --color-ink-faint: #94a3b8;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility container-page {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  @media (width >= 640px) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  @media (width >= 1024px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@utility section-pad {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+
+  @media (width >= 1024px) {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+}
+
+@utility focus-ring {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}

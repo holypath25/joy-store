@@ -1,0 +1,89 @@
+{%- doc -%}
+  Renders a B2B inquiry button that links to the inquiry page with the current product pre-filled.
+{%- enddoc -%}
+
+{%- liquid
+  assign product_title = closest.product.title | url_encode
+  assign product_handle = closest.product.handle
+-%}
+
+<div class="b2b-inquiry-btn-wrapper">
+  <a
+    href="/pages/inquiry?product={{ product_title }}&handle={{ product_handle }}"
+    class="button b2b-inquiry-btn"
+  >
+    <span class="b2b-inquiry-btn__icon" aria-hidden="true">
+      {{- 'icon-email.svg' | inline_asset_content -}}
+    </span>
+    <span>B2B Inquiry</span>
+  </a>
+</div>
+
+{% stylesheet %}
+  .b2b-inquiry-btn-wrapper {
+    width: 100%;
+  }
+
+  .b2b-inquiry-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 24px;
+    background-color: transparent;
+    color: #1a4a38;
+    border: 1.5px solid #1a4a38;
+    border-radius: var(--button-border-radius, 4px);
+    font-family: var(--font-body--family);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+  }
+
+  .b2b-inquiry-btn:hover {
+    background-color: #1a4a38;
+    color: #f7ede5;
+  }
+
+  .b2b-inquiry-btn__icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .b2b-inquiry-btn__icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "B2B Inquiry Button",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Padding top",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

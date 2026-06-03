@@ -1,0 +1,118 @@
+{%- doc -%}
+  Outputs JSON-LD structured data for SEO.
+  Renders on every page: Organization + WebSite schemas.
+  Adds Product schema on product pages.
+  Adds CollectionPage schema on collection pages.
+{%- enddoc -%}
+
+{%- liquid
+  assign store_url = request.origin
+  assign store_name = shop.name
+-%}
+
+{%- comment -%} ── Organization ── {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": {{ store_name | json }},
+  "url": {{ store_url | json }},
+  "logo": {%- if settings.logo != blank -%}{{ settings.logo | image_url: width: 400 | prepend: 'https:' | json }}{%- else -%}{{ store_url | append: '/favicon.ico' | json }}{%- endif -%},
+  "description": "Korean medical aesthetics wholesale distributor. Premium injectable and topical products — Nabota, Botulax, Yvoire, Rejuran and more — for licensed clinics and medical professionals.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "B2B Sales",
+    "url": {{ store_url | append: '/pages/inquiry' | json }},
+    "availableLanguage": ["English", "Korean"]
+  },
+  "sameAs": [
+    {%- if settings.social_instagram_link != blank -%}{{ settings.social_instagram_link | json }}{%- endif -%}
+  ]
+}
+</script>
+
+{%- comment -%} ── WebSite (enables Google Sitelinks Search Box) ── {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ store_name | json }},
+  "url": {{ store_url | json }},
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      {%- capture search_url_template -%}{{ store_url }}/search?q={search_term_string}{%- endcapture -%}
+      "urlTemplate": {{ search_url_template | json }}
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+{%- if request.page_type == 'product' -%}
+  {%- liquid
+    assign product_url = store_url | append: product.url
+    assign product_image = ''
+    if product.featured_image
+      assign product_image = product.featured_image | image_url: width: 800 | prepend: 'https:'
+    endif
+    assign availability = 'https://schema.org/OutOfStock'
+    if product.available
+      assign availability = 'https://schema.org/InStock'
+    endif
+    assign price_formatted = product.price | money_without_currency | remove: ','
+  -%}
+
+  {%- comment -%} ── Product ── {%- endcomment -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "url": {{ product_url | json }},
+    "description": {{ product.description | strip_html | truncate: 300 | json }},
+    {%- if product_image != blank -%}
+    "image": {{ product_image | json }},
+    {%- endif -%}
+    "brand": {
+      "@type": "Brand",
+      "name": {{ product.vendor | json }}
+    },
+    "sku": {{ product.selected_or_first_available_variant.sku | default: product.id | json }},
+    "offers": {
+      "@type": "Offer",
+      "url": {{ product_url | json }},
+      "priceCurrency": {{ cart.currency.iso_code | json }},
+      "price": {{ price_formatted | json }},
+      "priceValidUntil": "2026-12-31",
+      "availability": {{ availability | json }},
+      "seller": {
+        "@type": "Organization",
+        "name": {{ store_name | json }}
+      }
+    }
+  }
+  </script>
+{%- endif -%}
+
+{%- if request.page_type == 'collection' -%}
+  {%- liquid
+    assign collection_url = store_url | append: collection.url
+    assign collection_description = collection.description | strip_html | truncate: 200
+    if collection_description == blank
+      assign collection_description = 'Buy authentic ' | append: collection.title | append: ' wholesale from JOY Medical Aesthetics. Sourced directly from Korean manufacturers for licensed clinics.'
+    endif
+  -%}
+
+  {%- comment -%} ── CollectionPage ── {%- endcomment -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": {{ collection.title | json }},
+    "url": {{ collection_url | json }},
+    "description": {{ collection_description | json }}
+  }
+  </script>
+{%- endif -%}

@@ -1,0 +1,181 @@
+{% doc %}
+  Renders all meta tags for the page including Open Graph, Twitter Cards, and SEO tags.
+
+  @param {object} [product] - The product object, available on product pages for price meta tags.
+{% enddoc %}
+
+<meta charset="utf-8">
+<meta
+  http-equiv="X-UA-Compatible"
+  content="IE=edge"
+>
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+<meta
+  name="view-transition"
+  content="same-origin"
+>
+<meta
+  name="theme-color"
+  content=""
+>
+
+{%- liquid
+  assign og_title = page_title | default: shop.name
+  assign og_url = canonical_url | default: request.origin
+  assign og_type = 'website'
+  assign og_description = page_description | default: shop.description | default: shop.name
+
+  if request.page_type == 'product'
+    assign og_type = 'product'
+  elsif request.page_type == 'article'
+    assign og_type = 'article'
+  elsif request.page_type == 'password'
+    assign og_url = request.origin
+  endif
+%}
+
+<meta
+  property="og:site_name"
+  content="{{ shop.name }}"
+>
+<meta
+  property="og:url"
+  content="{{ og_url }}"
+>
+<meta
+  property="og:title"
+  content="{{ og_title | escape }}"
+>
+<meta
+  property="og:type"
+  content="{{ og_type }}"
+>
+<meta
+  property="og:description"
+  content="{{ og_description | escape }}"
+>
+
+{%- if page_image -%}
+  <meta
+    property="og:image"
+    content="http:{{ page_image | image_url }}"
+  >
+  <meta
+    property="og:image:secure_url"
+    content="https:{{ page_image | image_url }}"
+  >
+  <meta
+    property="og:image:width"
+    content="{{ page_image.width }}"
+  >
+  <meta
+    property="og:image:height"
+    content="{{ page_image.height }}"
+  >
+{%- endif -%}
+
+{%- if request.page_type == 'product' -%}
+  <meta
+    property="og:price:amount"
+    content="{{ product.price | money_without_currency | strip_html }}"
+  >
+  <meta
+    property="og:price:currency"
+    content="{{ cart.currency.iso_code }}"
+  >
+{%- endif -%}
+
+{%- if settings.social_twitter_link != blank -%}
+  <meta
+    name="twitter:site"
+    content="{{ settings.social_twitter_link | split: 'twitter.com/' | last | prepend: '@' }}"
+  >
+{%- endif -%}
+<meta
+  name="twitter:card"
+  content="summary_large_image"
+>
+<meta
+  name="twitter:title"
+  content="{{ og_title | escape }}"
+>
+<meta
+  name="twitter:description"
+  content="{{ og_description | escape }}"
+>
+
+{%- liquid
+  # Build SEO-optimised title per page type
+  # Admin-set SEO title (page_title) always takes priority; we only append a
+  # branded suffix when the shop name isn't already present.
+  assign seo_title = page_title
+
+  if request.page_type == 'index'
+    if page_title == shop.name or page_title == blank
+      assign seo_title = 'Korean Medical Aesthetics Wholesale for Licensed Clinics | ' | append: shop.name
+    endif
+  elsif request.page_type == 'collection'
+    unless page_title contains shop.name
+      assign seo_title = 'Buy ' | append: page_title | append: ' Wholesale | Korean Aesthetics – ' | append: shop.name
+    endunless
+  elsif request.page_type == 'product'
+    unless page_title contains shop.name
+      assign seo_title = page_title | append: ' – Wholesale Supply | ' | append: shop.name
+    endunless
+  else
+    unless page_title contains shop.name
+      assign seo_title = page_title | append: ' – ' | append: shop.name
+    endunless
+  endif
+
+  if current_page != 1
+    assign seo_title = seo_title | append: ' – Page ' | append: current_page
+  endif
+
+  # Build meta description fallback per page type
+  assign seo_description = page_description
+  if seo_description == blank
+    if request.page_type == 'index'
+      assign seo_description = 'JOY supplies premium Korean medical aesthetic products — Nabota, Botulax, Yvoire, Rejuran and more — exclusively to licensed clinics and medical professionals. B2B wholesale pricing.'
+    elsif request.page_type == 'collection'
+      case collection.handle
+        when 'skin'
+          assign seo_description = 'Wholesale botulinum toxin, dermal fillers, skin boosters & thread lifts for licensed clinics. Korean medical-grade supply — JOY.'
+        when 'hair'
+          assign seo_description = 'Wholesale hair loss solutions: minoxidil, finasteride, dutasteride & professional ampoules for licensed medical clinics — JOY.'
+        when 'inner-beauty'
+          assign seo_description = 'ASCE+ & IRLV ampoules, tranexamic acid & topical brighteners — wholesale supply for licensed aesthetic professionals. B2B only.'
+        when 'diet'
+          assign seo_description = 'Fat-dissolving injections, Wegovy, Mounjaro & prescription obesity medications. Wholesale supply for licensed clinics — JOY.'
+        when 'nutrition'
+          assign seo_description = 'Premium Korean health functional foods & nutraceuticals, wholesale for clinics and wellness professionals. B2B pricing — JOY.'
+        when 'md'
+          assign seo_description = 'Zeroid, Aestura, Rejuran, Easydew & top Korean pharma brands. Wholesale medical-grade skincare for licensed clinics — JOY.'
+        else
+          assign seo_description = 'Buy authentic ' | append: collection.title | append: ' wholesale. Sourced directly from Korean manufacturers. Verified supply for licensed medical professionals – JOY.'
+      endcase
+    elsif request.page_type == 'product'
+      assign seo_description = product.description | strip_html | truncate: 155
+      if seo_description == blank
+        assign seo_description = 'Order ' | append: product.title | append: ' wholesale from JOY. Authentic Korean medical aesthetic product, verified source, B2B pricing for licensed professionals.'
+      endif
+    else
+      assign seo_description = shop.description | default: 'JOY Medical Aesthetics – Korean aesthetic products, beauty professional placement and clinical seminars for licensed practitioners.'
+    endif
+  endif
+-%}
+
+<title>{{ seo_title }}</title>
+
+<link
+  rel="canonical"
+  href="{{ canonical_url }}"
+>
+
+<meta
+  name="description"
+  content="{{ seo_description | escape }}"
+>

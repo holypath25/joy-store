@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "b2b_inquiry_form": {
+      "type": "b2b-inquiry-form",
+      "settings": {
+        "color_scheme": "scheme-1"
+      }
+    }
+  },
+  "order": [
+    "b2b_inquiry_form"
+  ]
+}
