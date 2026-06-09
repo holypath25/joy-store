@@ -13,20 +13,36 @@
   var css = `
     #joy-chat-btn {
       position: fixed; bottom: 24px; right: 24px; z-index: 99999;
-      width: 56px; height: 56px; border-radius: 50%;
-      background: #4db8b8; border: none; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.2s, background 0.2s;
+      height: 56px; border-radius: 50px;
+      background: #0f2340; border: none; cursor: pointer;
+      box-shadow: 0 4px 24px rgba(15,35,64,0.35);
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 20px 0 8px;
+      transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
     }
-    #joy-chat-btn:hover { background: #3da8a8; transform: scale(1.07); }
-    #joy-chat-btn svg { width: 26px; height: 26px; color: #fff; }
+    #joy-chat-btn:hover { background: #1a3a5c; transform: translateY(-2px); box-shadow: 0 6px 28px rgba(15,35,64,0.45); }
+    #joy-btn-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: #4db8b8;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    #joy-btn-avatar svg { width: 22px; height: 22px; color: #fff; }
+    #joy-btn-text {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+    }
+    #joy-btn-text-top { font-size: 10px; color: rgba(255,255,255,0.55); font-family: sans-serif; line-height: 1; }
+    #joy-btn-text-bottom { font-size: 13px; color: #fff; font-weight: 700; font-family: sans-serif; line-height: 1.2; }
     #joy-chat-badge {
       position: absolute; top: -4px; right: -4px;
       background: #ef4444; color: #fff; border-radius: 50%;
       width: 18px; height: 18px; font-size: 9px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       font-family: sans-serif;
+    }
+    @media (max-width: 479px) {
+      #joy-chat-btn { width: 56px; padding: 0; border-radius: 50%; justify-content: center; }
+      #joy-btn-text { display: none; }
+      #joy-btn-avatar { width: 38px; height: 38px; }
     }
     #joy-chat-panel {
       position: fixed; bottom: 24px; right: 24px; z-index: 99998;
@@ -170,8 +186,19 @@
     // Floating button
     var btn = document.createElement('button');
     btn.id = 'joy-chat-btn';
-    btn.setAttribute('aria-label', '피부 고민 상담');
-    btn.innerHTML = '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span id="joy-chat-badge">AI</span>';
+    btn.setAttribute('aria-label', '피부 고민 AI 제품 추천');
+    btn.innerHTML = `
+      <div id="joy-btn-avatar">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+        </svg>
+      </div>
+      <div id="joy-btn-text">
+        <span id="joy-btn-text-top">피부 고민 AI에게</span>
+        <span id="joy-btn-text-bottom">제품 추천 받아보세요</span>
+      </div>
+      <span id="joy-chat-badge">AI</span>
+    `;
     document.body.appendChild(btn);
 
     // Panel
@@ -341,6 +368,10 @@
 
   function sendMessage(text) {
     if (!text || !text.trim() || loading) return;
+    if (!API_URL) {
+      appendMessage('assistant', '⚠️ 챗봇 API 주소가 설정되지 않았습니다.\nShopify 테마에서 JOYCHAT_API_URL을 확인해 주세요.');
+      return;
+    }
     var trimmed = text.trim();
     document.getElementById('joy-input').value = '';
     document.getElementById('joy-send-btn').disabled = true;

@@ -8,6 +8,24 @@
     "theme_support_url": "https://support.shopify.com/"
   },
   {
+    "name": "WhatsApp 문의",
+    "settings": [
+      {
+        "type": "text",
+        "id": "whatsapp_number",
+        "label": "WhatsApp 전화번호",
+        "info": "국가코드 포함, 숫자만 입력. 예: 821012345678 (한국 010-1234-5678)",
+        "placeholder": "821012345678"
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_message",
+        "label": "기본 메시지",
+        "default": "안녕하세요! 제품 문의드립니다."
+      }
+    ]
+  },
+  {
     "name": "t:names.logo_and_favicon",
     "settings": [
       {

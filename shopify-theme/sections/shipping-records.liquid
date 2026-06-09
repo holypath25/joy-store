@@ -1,0 +1,421 @@
+{% liquid
+  assign title     = section.settings.title     | default: '실시간 출고 현황'
+  assign subtitle  = section.settings.subtitle  | default: '전 세계로 배송 중'
+  assign show_date = section.settings.show_date
+  assign speed     = section.settings.speed | default: 30
+  assign has_blocks = false
+  for block in section.blocks
+    if block.type == 'record'
+      assign has_blocks = true
+      break
+    endif
+  endfor
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<div
+  class="shipping-records-section section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  {% if title != blank %}
+    <div class="shipping-records__header">
+      <span class="shipping-records__live-dot"></span>
+      <h2 class="shipping-records__title">{{ title }}</h2>
+      {% if subtitle != blank %}
+        <span class="shipping-records__subtitle">{{ subtitle }}</span>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="shipping-records__track-wrapper">
+    <div class="shipping-records__fade shipping-records__fade--left"></div>
+    <div class="shipping-records__fade shipping-records__fade--right"></div>
+
+    <div class="shipping-records__track" style="--sr-speed: {{ speed }}s">
+      {% assign content_rendered = '' %}
+
+      {% capture record_items %}
+        {% for block in section.blocks %}
+          {% if block.type == 'record' %}
+            {% liquid
+              assign country  = block.settings.country  | default: '대한민국'
+              assign flag     = block.settings.flag
+              assign note     = block.settings.note
+              assign qty      = block.settings.qty
+              assign date_str = block.settings.date_label
+              assign prod     = block.settings.product
+            %}
+            <div class="shipping-record-card" {{ block.shopify_attributes }}>
+              {% if prod != blank %}
+                <div class="shipping-record-card__img-wrap">
+                  {{ prod | image_url: width: 80 | image_tag:
+                    width: 80,
+                    height: 80,
+                    class: 'shipping-record-card__img',
+                    alt: prod.title
+                  }}
+                </div>
+              {% else %}
+                <div class="shipping-record-card__img-wrap shipping-record-card__img-wrap--empty">
+                  <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                </div>
+              {% endif %}
+              <div class="shipping-record-card__info">
+                <div class="shipping-record-card__country">
+                  {% if flag != blank %}<span>{{ flag }}</span>{% endif %}
+                  <span>{{ country }}</span>
+                  {% if qty != blank and qty != '' %}
+                    <span class="shipping-record-card__qty">{{ qty }}</span>
+                  {% endif %}
+                </div>
+                {% if prod != blank %}
+                  <div class="shipping-record-card__product">{{ prod.title }}</div>
+                {% endif %}
+                {% if note != blank %}
+                  <div class="shipping-record-card__note">{{ note }}</div>
+                {% endif %}
+                {% if show_date and date_str != blank %}
+                  <div class="shipping-record-card__date">{{ date_str }}</div>
+                {% endif %}
+              </div>
+              <span class="shipping-record-card__badge">출고완료</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endcapture %}
+
+      {% if has_blocks %}
+        <div class="shipping-records__inner shipping-records__inner--a">
+          {{ record_items }}
+        </div>
+        <div class="shipping-records__inner shipping-records__inner--b" aria-hidden="true">
+          {{ record_items }}
+        </div>
+      {% else %}
+        <div class="shipping-records__empty">
+          테마 편집기에서 출고 기록을 추가하세요.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .shipping-records-section {
+    overflow: hidden;
+    padding-inline: 0;
+  }
+
+  .shipping-records__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-inline: var(--page-margin, 1.5rem);
+    margin-block-end: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .shipping-records__live-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.6);
+    animation: sr-pulse 1.8s infinite;
+  }
+
+  @keyframes sr-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  }
+
+  .shipping-records__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+  }
+
+  .shipping-records__subtitle {
+    font-size: 0.82rem;
+    color: var(--color-foreground-muted, #888);
+  }
+
+  .shipping-records__track-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .shipping-records__fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .shipping-records__fade--left {
+    left: 0;
+    background: linear-gradient(to right, var(--color-background, #fff), transparent);
+  }
+
+  .shipping-records__fade--right {
+    right: 0;
+    background: linear-gradient(to left, var(--color-background, #fff), transparent);
+  }
+
+  .shipping-records__track {
+    display: flex;
+    width: max-content;
+  }
+
+  .shipping-records__inner {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.25rem 0.375rem;
+    animation: sr-scroll var(--sr-speed, 30s) linear infinite;
+    flex-shrink: 0;
+  }
+
+  .shipping-records__track:hover .shipping-records__inner {
+    animation-play-state: paused;
+  }
+
+  @keyframes sr-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
+  }
+
+  .shipping-records__empty {
+    padding: 1.5rem var(--page-margin, 1.5rem);
+    color: var(--color-foreground-muted, #aaa);
+    font-size: 0.85rem;
+  }
+
+  .shipping-record-card {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--color-background, #fff);
+    border: 1.5px solid var(--color-border, #e5e7eb);
+    border-radius: 14px;
+    padding: 0.7rem 0.9rem 0.7rem 0.7rem;
+    min-width: 200px;
+    max-width: 260px;
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .shipping-record-card:hover {
+    border-color: var(--color-foreground, #111);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  }
+
+  .shipping-record-card__img-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--color-background-secondary, #f8fafc);
+  }
+
+  .shipping-record-card__img-wrap--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--color-border, #e5e7eb);
+  }
+
+  .shipping-record-card__img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .shipping-record-card__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .shipping-record-card__country {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 700;
+    font-size: 0.88rem;
+    line-height: 1.2;
+  }
+
+  .shipping-record-card__qty {
+    font-size: 0.72rem;
+    background: var(--color-foreground, #111);
+    color: var(--color-background, #fff);
+    padding: 0.1rem 0.4rem;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .shipping-record-card__product {
+    font-size: 0.76rem;
+    color: var(--color-foreground-muted, #666);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .shipping-record-card__note {
+    font-size: 0.72rem;
+    color: var(--color-foreground-muted, #999);
+  }
+
+  .shipping-record-card__date {
+    font-size: 0.68rem;
+    color: var(--color-foreground-muted, #bbb);
+  }
+
+  .shipping-record-card__badge {
+    position: absolute;
+    top: 0.45rem;
+    right: 0.55rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 0.1rem 0.4rem;
+    border-radius: 20px;
+    letter-spacing: 0.01em;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "출고 현황",
+  "tag": "section",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "blocks": [
+    {
+      "type": "record",
+      "name": "출고 기록",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "제품 선택"
+        },
+        {
+          "type": "text",
+          "id": "country",
+          "label": "배송 국가/지역",
+          "default": "일본"
+        },
+        {
+          "type": "text",
+          "id": "flag",
+          "label": "국기 이모지",
+          "info": "예: 🇯🇵 🇺🇸 🇨🇳 🇸🇬 🇦🇺 🇩🇪 🇫🇷 🇬🇧",
+          "default": "🇯🇵"
+        },
+        {
+          "type": "text",
+          "id": "qty",
+          "label": "수량 (선택)",
+          "placeholder": "예: 50박스"
+        },
+        {
+          "type": "text",
+          "id": "note",
+          "label": "메모 (선택)",
+          "placeholder": "예: 정기 발주"
+        },
+        {
+          "type": "text",
+          "id": "date_label",
+          "label": "날짜 표시 (선택)",
+          "placeholder": "예: 2026.06.04"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "제목",
+      "default": "실시간 출고 현황"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "부제목",
+      "default": "전 세계로 배송 중"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "날짜 표시",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "스크롤 속도 (초, 낮을수록 빠름)",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "default": 30
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "색상 테마",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "섹션 너비",
+      "options": [
+        { "value": "page-width", "label": "페이지 너비" },
+        { "value": "full-width", "label": "전체 너비" }
+      ],
+      "default": "full-width"
+    },
+    {
+      "type": "header",
+      "content": "여백"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "상단 여백",
+      "min": 0, "max": 80, "step": 4, "unit": "px", "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "하단 여백",
+      "min": 0, "max": 80, "step": 4, "unit": "px", "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "출고 현황",
+      "category": "소셜 프루프"
+    }
+  ]
+}
+{% endschema %}
