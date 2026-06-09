@@ -25,7 +25,9 @@
     #joy-btn-avatar {
       width: 40px; height: 40px; border-radius: 50%; background: #4db8b8;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      overflow: hidden;
     }
+    #joy-btn-avatar img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; display: block; }
     #joy-btn-avatar svg { width: 22px; height: 22px; color: #fff; }
     #joy-btn-text {
       display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
@@ -69,7 +71,9 @@
       width: 32px; height: 32px; border-radius: 50%;
       background: #4db8b8; color: #fff; font-weight: 700; font-size: 14px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      overflow: hidden;
     }
+    .joy-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
     .joy-header-title { font-weight: 600; font-size: 14px; line-height: 1.2; }
     .joy-header-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
     #joy-close-btn {
@@ -189,9 +193,7 @@
     btn.setAttribute('aria-label', '피부 고민 AI 제품 추천');
     btn.innerHTML = `
       <div id="joy-btn-avatar">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-        </svg>
+        <img src="https://joy-store-tau.vercel.app/chatbot-avatar.png" alt="AI 상담사" onerror="this.style.display='none';this.parentNode.innerHTML='<svg fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\' stroke-width=\'1.8\' style=\'width:22px;height:22px;color:#fff\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z\'></path></svg>'"/>
       </div>
       <div id="joy-btn-text">
         <span id="joy-btn-text-top">피부 고민 AI에게</span>
@@ -208,7 +210,7 @@
     panel.innerHTML = `
       <div id="joy-chat-header">
         <div id="joy-chat-header-info">
-          <div class="joy-avatar">J</div>
+          <div class="joy-avatar"><img src="https://joy-store-tau.vercel.app/chatbot-avatar.png" alt="조이" onerror="this.outerHTML='J'"/></div>
           <div>
             <div class="joy-header-title">JOY 제품 추천</div>
             <div class="joy-header-sub">피부·건강 고민을 입력하세요</div>
@@ -293,7 +295,7 @@
       var av = document.createElement('div');
       av.className = 'joy-avatar';
       av.style.cssText = 'width:24px;height:24px;font-size:11px;margin-top:2px;';
-      av.textContent = 'J';
+      av.innerHTML = '<img src="https://joy-store-tau.vercel.app/chatbot-avatar.png" alt="조이" style="width:24px;height:24px;object-fit:cover;border-radius:50%;display:block;" onerror="this.outerHTML=\'J\'"/>';
       row.appendChild(av);
     }
 
@@ -314,7 +316,7 @@
     var av = document.createElement('div');
     av.className = 'joy-avatar';
     av.style.cssText = 'width:24px;height:24px;font-size:11px;margin-top:2px;';
-    av.textContent = 'J';
+    av.innerHTML = '<img src="https://joy-store-tau.vercel.app/chatbot-avatar.png" alt="조이" style="width:24px;height:24px;object-fit:cover;border-radius:50%;display:block;" onerror="this.outerHTML=\'J\'"/>';
     row.appendChild(av);
     var dots = document.createElement('div');
     dots.className = 'joy-typing';
