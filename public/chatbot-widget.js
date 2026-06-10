@@ -171,15 +171,6 @@
     #joy-disclaimer { font-size: 10px; color: #cbd5e1; text-align: center; margin-top: 6px; }
   `;
 
-  var PRODUCT_COLORS = {
-    nabota: '#1e3a5f', botulax: '#1e3a5f', xeomin: '#2d4a6e',
-    yvoire: '#008080', rejuran: '#b8952a', rituo: '#005f5f',
-  };
-
-  var PRODUCT_CATEGORIES = {
-    nabota: 'Botulinum Toxin', botulax: 'Botulinum Toxin', xeomin: 'Botulinum Toxin',
-    yvoire: 'HA Filler', rejuran: 'PDRN / Polynucleotide', rituo: 'HA Filler',
-  };
 
   // ── DOM ──────────────────────────────────────────────────────────────────────
   function init() {
@@ -341,14 +332,13 @@
     msgs.appendChild(label);
 
     recs.forEach(function (rec) {
-      var color = PRODUCT_COLORS[rec.id] || '#1e3a5f';
-      var cat = PRODUCT_CATEGORIES[rec.id] || '';
-      var url = PRODUCT_BASE_URL + rec.id;
+      var url = PRODUCT_BASE_URL + rec.slug;
+      var cat = rec.category || '';
       var card = document.createElement('a');
       card.className = 'joy-rec-card';
       card.href = url;
       card.innerHTML = `
-        <div class="joy-rec-thumb" style="background:${color}"><span>${rec.name}</span></div>
+        <div class="joy-rec-thumb" style="background:#1e3a5f"><span>${rec.name}</span></div>
         <div class="joy-rec-info">
           <div class="joy-rec-name">${rec.name}</div>
           <div class="joy-rec-reason">${rec.reason}</div>
