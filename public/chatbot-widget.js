@@ -6,8 +6,25 @@
 
   var SUGGESTIONS = ['주름 개선', '피부 탄력', '여드름 흉터', '볼 볼륨', '피부 재생'];
 
+  var STORAGE_KEY = 'joy_chat_history';
   var history = [];
   var loading = false;
+
+  function saveHistory() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch(e) {}
+  }
+
+  function loadHistory() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  }
+
+  function clearHistory() {
+    history = [];
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  }
 
   // ── Styles ──────────────────────────────────────────────────────────────────
   var css = `
@@ -228,7 +245,13 @@
     `;
     document.body.appendChild(panel);
 
-    renderWelcome();
+    // 저장된 대화 복원
+    history = loadHistory();
+    if (history.length > 0) {
+      restoreMessages();
+    } else {
+      renderWelcome();
+    }
 
     btn.addEventListener('click', function () { openPanel(); });
     document.getElementById('joy-close-btn').addEventListener('click', function () { closePanel(); });
@@ -250,6 +273,28 @@
     document.getElementById('joy-chat-btn').style.opacity = '1';
     document.getElementById('joy-chat-btn').style.pointerEvents = '';
     document.getElementById('joy-chat-panel').classList.add('joy-hidden');
+  }
+
+  function restoreMessages() {
+    var msgs = document.getElementById('joy-messages');
+    msgs.innerHTML = '';
+    // 초기화 버튼 추가
+    var resetBar = document.createElement('div');
+    resetBar.style.cssText = 'text-align:center;padding:6px 0 2px;';
+    resetBar.innerHTML = '<button onclick="(function(){' +
+      'document.getElementById(\'joy-messages\').innerHTML=\'\';' +
+      '})()" style="font-size:11px;color:#94a3b8;background:none;border:none;cursor:pointer;text-decoration:underline;" id="joy-reset-btn">대화 초기화</button>';
+    msgs.appendChild(resetBar);
+
+    history.forEach(function(msg) {
+      appendMessage(msg.role, msg.content);
+    });
+    document.getElementById('joy-reset-btn') && document.getElementById('joy-reset-btn').addEventListener('click', function() {
+      clearHistory();
+      var msgs = document.getElementById('joy-messages');
+      msgs.innerHTML = '';
+      renderWelcome();
+    });
   }
 
   function renderWelcome() {
@@ -337,6 +382,8 @@
       var card = document.createElement('a');
       card.className = 'joy-rec-card';
       card.href = url;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
       card.innerHTML = `
         <div class="joy-rec-thumb" style="background:#1e3a5f"><span>${rec.name}</span></div>
         <div class="joy-rec-info">
@@ -370,6 +417,7 @@
 
     appendMessage('user', trimmed);
     history.push({ role: 'user', content: trimmed });
+    saveHistory();
     loading = true;
     showTyping();
 
@@ -384,6 +432,7 @@
         var replyText = data.error || data.text || '죄송합니다. 다시 시도해 주세요.';
         appendMessage('assistant', replyText);
         history.push({ role: 'assistant', content: replyText });
+        saveHistory();
         if (data.recommendations) renderRecommendations(data.recommendations);
       })
       .catch(function () {
